@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 3.7.2)
 project(Toro VERSION 0.0.1)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
-find_package(juce REQUIRED)
+#list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
+include(FetchContent)
+set(FETCH_CONTENT_QUIET OFF)
+FetchContent_Declare(
+        JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG origin/master
+        GIT_SHALLOW ON
+        FIND_PACKAGE_ARGS 7.0.3 GLOBAL
+)
+#find_package(juce REQUIRED)
+FetchContent_MakeAvailable(JUCE)
 set(CMAKE_CXX_STANDARD 23)
 
 juce_add_plugin(
