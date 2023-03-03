@@ -1,0 +1,6 @@
+[submodule "modules/SUX"]
+	path = modules/SUX
+	url = https://github.com/MeijisIrlnd/SUX.git
+[submodule "modules/SDSP"]
+	path = modules/SDSP
+	url = https://github.com/MeijisIrlnd/SDSP.git
