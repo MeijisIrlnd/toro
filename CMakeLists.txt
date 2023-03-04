@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2)
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
 project(Toro VERSION 0.0.1)
 #list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
 include(FetchContent)
