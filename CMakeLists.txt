@@ -17,8 +17,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 juce_add_plugin(
         Toro
-        PLUGIN_MANUFACTURER_CODE SMPI
-        PLUGIN_CODE SMR1
+        PLUGIN_MANUFACTURER_CODE Smpi
+        PLUGIN_CODE Smr1
         FORMATS AU VST3 Standalone
         PRODUCT_NAME "Toro"
 )
@@ -40,7 +40,9 @@ target_compile_definitions(Toro PUBLIC
         JUCE_ASIO=1
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0)
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        AU_MAIN_TYPE=kAudioUnitTypeEffect
+        )
 
 #juce_add_binary_data(SprinklerData SOURCES
 # Resources/NotoSansJP-Regular.otf

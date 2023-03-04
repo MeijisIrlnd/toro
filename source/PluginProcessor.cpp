@@ -264,17 +264,17 @@ void PluginProcessor::parameterChanged(const juce::String &id, float value) {
 APVTS::ParameterLayout PluginProcessor::createLayout() {
     using FloatParam = juce::AudioParameterFloat;
     APVTS::ParameterLayout layout;
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"PreDelay", 1}, "Pre Delay", juce::NormalisableRange<float>(0.0f, 0.5f, 0.01f), 0.0f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"EarlyReflections", 1}, "Early Reflections", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"Decay", 1}, "Decay", juce::NormalisableRange<float>(0.01f, 0.9f, 0.01f), 0.5f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"ExcursionMS", 1}, "Excursion Time MS", juce::NormalisableRange<float>(0.2f, 1.0416f, 0.0001f), 0.53676f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"DecayDiffusion1", 1}, "Decay Diffusion 1", juce::NormalisableRange<float>(0.1f, 0.9f, 0.01f), 0.7f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"DecayDiffusion2", 1}, "Decay Diffusion 2", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.5f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"InputDiffusion1", 1}, "Input Diffusion 1", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.75f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"InputDiffusion2", 1}, "Input Diffusion 2", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.625f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"Bandwidth", 1}, "Bandwidth", juce::NormalisableRange<float>(0.01f, 0.99999f, 0.01f), 0.7f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"Damping", 1}, "Damping", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.0005f));
-    layout.add(std::make_unique<FloatParam>(juce::ParameterID{"DryWet", 1}, "DryWet", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("PreDelay", 1), "Pre Delay", juce::NormalisableRange<float>(0.0f, 0.5f, 0.01f), 0.0f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("EarlyReflections", 1), "Early Reflections", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("Decay", 1), "Decay", juce::NormalisableRange<float>(0.01f, 0.9f, 0.01f), 0.5f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("ExcursionMS", 1), "Excursion Time MS", juce::NormalisableRange<float>(0.2f, 1.0416f, 0.0001f), 0.53676f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("DecayDiffusion1", 1), "Decay Diffusion 1", juce::NormalisableRange<float>(0.1f, 0.9f, 0.01f), 0.7f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("DecayDiffusion2", 1), "Decay Diffusion 2", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.5f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("InputDiffusion1", 1), "Input Diffusion 1", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.75f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("InputDiffusion2", 1), "Input Diffusion 2", juce::NormalisableRange<float>{0.1f, 0.9f, 0.01f}, 0.625f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("Bandwidth", 1), "Bandwidth", juce::NormalisableRange<float>(0.01f, 0.99999f, 0.01f), 0.7f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("Damping", 1), "Damping", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.0005f));
+    layout.add(std::make_unique<FloatParam>(juce::ParameterID("DryWet", 1), "DryWet", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
     return layout;
 
 }
