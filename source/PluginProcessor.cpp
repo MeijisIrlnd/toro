@@ -23,14 +23,9 @@ PluginProcessor::PluginProcessor()
 #else
 :
 #endif
- m_tree(*this, nullptr, juce::Identifier{"Params"}, createLayout()),
- m_mixer(44100)
+ m_tree(*this, nullptr, juce::Identifier{"Params"}, createLayout())
 {
     bindListeners();
-}
-
-PluginProcessor::~PluginProcessor()
-{
 }
 
 //==============================================================================
@@ -99,19 +94,7 @@ void PluginProcessor::changeProgramName (int index, const juce::String& newName)
 void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     m_sampleRate = sampleRate;
-    //setLatencySamples(static_cast<int>(0.1 * sampleRate));
-    m_lowpass.setCoeff(1 - m_bandwidth);
-    for(size_t i = 0; i < m_inputDiffusers.size(); ++i) {
-        m_inputDiffusers[i].setDelayTimeSamples(static_cast<int>(m_inputDiffuserTimes[i] * sampleRate));
-        m_inputDiffusers[i].setCoeff(m_inputDiffuserCoeffs[i]);
-        m_inputDiffusers[i].prepareToPlay(samplesPerBlock, sampleRate);
-    }
-    m_tank.prepareToPlay(samplesPerBlock, sampleRate);
-    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32>(samplesPerBlock), 1};
-    m_preDelay.prepare(spec);
-    m_preDelay.setMaximumDelayInSamples(static_cast<int>(0.5 * sampleRate));
-    m_preDelay.setDelay(static_cast<float>(m_preDelaySeconds * sampleRate));
-    m_mixer.prepare({sampleRate, static_cast<juce::uint32>(samplesPerBlock), 2});
+    m_datorroSimple.prepareToPlay(samplesPerBlock, sampleRate);
     m_hasBeenPrepared = true;
 }
 
@@ -161,33 +144,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    //m_mixer.setWetLatency(static_cast<float>(0.151 * m_sampleRate));
-    //m_mixer.setWetLatency(static_cast<float>(0.3 * m_sampleRate));
-    m_mixer.pushDrySamples(juce::dsp::AudioBlock<float>{buffer});
-    auto* read = buffer.getArrayOfReadPointers();
-    auto* write = buffer.getArrayOfWritePointers();
-    for(auto sample = 0; sample < buffer.getNumSamples(); ++sample) {
-        auto avg = 0.0f;
-        for(auto channel = 0; channel < 2; ++channel) {
-            avg += read[channel][sample];
-        }
-        float earlyReflections{ 0.0f };
-        float delayInput  = avg / 2.0f;
-        auto x = m_preDelay.popSample(0);
-        m_preDelay.pushSample(0, delayInput);
-        x = m_lowpass.processSample(x);
-
-        for(auto i = 0; i < m_inputDiffusers.size(); ++i) {
-            x = m_inputDiffusers[i].processSample(x);
-            earlyReflections += (x / std::powf(2, static_cast<float>((m_inputDiffusers.size() - i))));
-        }
-        auto [l, r] = m_tank.processSample(x);
-        write[0][sample] = l + (earlyReflections * m_earlyReflectionsLevel);
-        write[1][sample] = r + (earlyReflections * m_earlyReflectionsLevel);
-    }
-    m_mixer.setWetMixProportion(m_dryWet);
-    m_mixer.mixWetSamples(juce::dsp::AudioBlock<float>{buffer});
+    m_datorroSimple.getNextAudioBlock(buffer);
 }
 
 //==============================================================================
@@ -220,44 +177,37 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 
 void PluginProcessor::parameterChanged(const juce::String &id, float value) {
     if(id == "PreDelay")  {
-        m_preDelaySeconds = value;
-        if(m_hasBeenPrepared) {
-            m_preDelay.setDelay(static_cast<float>(m_preDelaySeconds * m_sampleRate));
-        }
+        m_datorroSimple.setPreDelaySeconds(value);
     }
     else if(id == "EarlyReflections") {
-        m_earlyReflectionsLevel = value;
+        m_datorroSimple.setEarlyReflectionsLevel(value);
     }
     else if(id == "Decay") {
-        m_tank.setDecay(value);
+        m_datorroSimple.setDecay(value);
     }
     else if(id == "ExcursionMS") {
-        m_tank.setExcursion(value);
+        m_datorroSimple.setExcursion(value);
     }
     else if(id == "DecayDiffusion1") {
-        m_tank.setDecayDiffusion1(value);
+        m_datorroSimple.setDecayDiffusion1(value);
     }
     else if(id == "DecayDiffusion2") {
-        m_tank.setDecayDiffusion2(value);
+        m_datorroSimple.setDecayDiffusion2(value);
     }
     else if(id == "InputDiffusion1") {
-        m_inputDiffuserCoeffs[0] = m_inputDiffuserCoeffs[1] = value;
-        m_inputDiffusers[0].setCoeff(m_inputDiffuserCoeffs[0]);
-        m_inputDiffusers[1].setCoeff(m_inputDiffuserCoeffs[1]);
+        m_datorroSimple.setInputDiffusion1(value);
     }
     else if(id == "InputDiffusion2") {
-        m_inputDiffuserCoeffs[2] = m_inputDiffuserCoeffs[3] = value;
-        m_inputDiffusers[2].setCoeff(m_inputDiffuserCoeffs[2]);
-        m_inputDiffusers[3].setCoeff(m_inputDiffuserCoeffs[3]);
+        m_datorroSimple.setInputDiffusion2(value);
     }
     else if(id == "Bandwidth") {
-        m_lowpass.setCoeff(1 - value);
+        m_datorroSimple.setBandwidth(value);
     }
     else if(id == "Damping") {
-        m_tank.setDamping(value);
+        m_datorroSimple.setDamping(value);
     }
     else if(id == "DryWet") {
-        m_dryWet = value;
+        m_datorroSimple.setDryWet(value);
     }
 }
 

@@ -7,10 +7,9 @@
 */
 
 #pragma once
-#include <SinglePoleLowpass.h>
+#include <algorithms/DatorroSimple.h>
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "DecayDiffuser.h"
-#include "Tank.h"
+
 
 //==============================================================================
 /**
@@ -24,7 +23,7 @@ class PluginProcessor  : public juce::AudioProcessor, public APVTS::Listener
 public:
     //==============================================================================
     PluginProcessor();
-    ~PluginProcessor() override;
+    ~PluginProcessor() override = default;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -63,29 +62,11 @@ public:
 private:
     static APVTS::ParameterLayout createLayout();
     void bindListeners();
+    Toro::DatorroSimple m_datorroSimple;
     bool m_hasBeenPrepared{ false };
     double m_sampleRate{ 44100 };
     APVTS m_tree;
-    float m_bandwidth{ 0.7f };
-    float m_preDelaySeconds{ 0.0f };
-    float m_earlyReflectionsLevel{ 0.5f };
-    juce::dsp::DelayLine<float> m_preDelay;
-    juce::dsp::DryWetMixer<float> m_mixer;
-    Toro::SinglePoleLowpass m_lowpass;
-    std::array<Toro::TypeAAPF, 4> m_inputDiffusers;
-    const std::array<float, 4> m_inputDiffuserTimes = {
-            //4.7713e-3f,
-            1e-5,
-            3.5953e-3f,
-            1.2735e-2f,
-            9.3075e-3f
-    };
-    std::array<float, 4> m_inputDiffuserCoeffs = {
-            0.75f, 0.75f,
-            0.625f, 0.625f
-    };
-    Toro::Tank m_tank;
-    float m_dryWet{ 0.5f };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };
