@@ -30,6 +30,8 @@ private:
     // access the processor object that created it.
     PluginProcessor& audioProcessor;
     APVTS& m_tree;
+    juce::ComboBox m_typeSelector;
+    std::unique_ptr<juce::ComboBoxParameterAttachment> m_typeAttachment;
     SUX::Quickstart::LayoutQuickstart m_layout;
     SUX::Quickstart::QuickSlider m_preDelaySlider, m_earlyReflectionsSlider, m_decaySlider, m_excursionTimeSlider, m_decayDiffusion1Slider, m_decayDiffusion2Slider, m_inputDiffusion1Slider, m_inputDiffusion2Slider, m_bandwidthSlider, m_dampingSlider, m_dryWetSlider;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)

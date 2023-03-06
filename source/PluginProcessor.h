@@ -8,7 +8,9 @@
 
 #pragma once
 #include <algorithms/DatorroSimple.h>
+#include <algorithms/Lexicon.h>
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "algorithms/AlgorithmType.h"
 
 
 //==============================================================================
@@ -62,11 +64,16 @@ public:
 private:
     static APVTS::ParameterLayout createLayout();
     void bindListeners();
-    Toro::DatorroSimple m_datorroSimple;
+    Toro::Lexicon m_datorroSimple;
     bool m_hasBeenPrepared{ false };
     double m_sampleRate{ 44100 };
     APVTS m_tree;
-
+    std::atomic_int m_currentProcessorIndex{0};
+    struct ReverbAlgorithm {
+        std::unique_ptr<Toro::ReverbBase> processor{ nullptr };
+        Toro::ALGORITHM_TYPE type;
+    };
+    std::vector<ReverbAlgorithm> m_reverbProcessors;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

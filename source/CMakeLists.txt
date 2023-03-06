@@ -1,5 +1,9 @@
 set(SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}/PluginProcessor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PluginEditor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/DatorroInputStage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/DatorroTank.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/LexiconTank.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/algorithms/DatorroSimple.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/algorithms/Lexicon.cpp
         PARENT_SCOPE)

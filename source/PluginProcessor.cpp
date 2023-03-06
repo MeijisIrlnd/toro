@@ -25,6 +25,9 @@ PluginProcessor::PluginProcessor()
 #endif
  m_tree(*this, nullptr, juce::Identifier{"Params"}, createLayout())
 {
+    m_reverbProcessors.emplace_back(ReverbAlgorithm{std::make_unique<Toro::DatorroSimple>(), Toro::ALGORITHM_TYPE::DATORRO_SIMPLE});
+    m_reverbProcessors.emplace_back(ReverbAlgorithm{std::make_unique<Toro::Lexicon>(), Toro::ALGORITHM_TYPE::LEXICON});
+
     bindListeners();
 }
 
@@ -94,7 +97,9 @@ void PluginProcessor::changeProgramName (int index, const juce::String& newName)
 void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     m_sampleRate = sampleRate;
-    m_datorroSimple.prepareToPlay(samplesPerBlock, sampleRate);
+    for(auto& r : m_reverbProcessors) {
+        r.processor->prepareToPlay(samplesPerBlock, sampleRate);
+    }
     m_hasBeenPrepared = true;
 }
 
@@ -144,7 +149,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    m_datorroSimple.getNextAudioBlock(buffer);
+    m_reverbProcessors[m_currentProcessorIndex.load()].processor->getNextAudioBlock(buffer);
 }
 
 //==============================================================================
@@ -176,44 +181,71 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 }
 
 void PluginProcessor::parameterChanged(const juce::String &id, float value) {
-    if(id == "PreDelay")  {
-        m_datorroSimple.setPreDelaySeconds(value);
+    if(id == "Type") {
+        m_currentProcessorIndex.store(static_cast<int>(value));
+    }
+    else if(id == "PreDelay")  {
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setPreDelaySeconds(value);
+        }
     }
     else if(id == "EarlyReflections") {
-        m_datorroSimple.setEarlyReflectionsLevel(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setEarlyReflectionsLevel(value);
+        }
     }
     else if(id == "Decay") {
-        m_datorroSimple.setDecay(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setDecay(value);
+        }
     }
     else if(id == "ExcursionMS") {
-        m_datorroSimple.setExcursion(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setExcursion(value);
+        }
     }
     else if(id == "DecayDiffusion1") {
-        m_datorroSimple.setDecayDiffusion1(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setDecayDiffusion1(value);
+        }
     }
     else if(id == "DecayDiffusion2") {
-        m_datorroSimple.setDecayDiffusion2(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setDecayDiffusion2(value);
+        }
     }
     else if(id == "InputDiffusion1") {
-        m_datorroSimple.setInputDiffusion1(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setInputDiffusion1(value);
+        }
     }
     else if(id == "InputDiffusion2") {
-        m_datorroSimple.setInputDiffusion2(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setInputDiffusion2(value);
+        }
     }
     else if(id == "Bandwidth") {
-        m_datorroSimple.setBandwidth(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setBandwidth(value);
+        }
     }
     else if(id == "Damping") {
-        m_datorroSimple.setDamping(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setDamping(value);
+        }
     }
     else if(id == "DryWet") {
-        m_datorroSimple.setDryWet(value);
+        for(auto& a : m_reverbProcessors) {
+            a.processor->setDryWet(value);
+        }
     }
 }
 
 APVTS::ParameterLayout PluginProcessor::createLayout() {
     using FloatParam = juce::AudioParameterFloat;
+    using ChoiceParam = juce::AudioParameterChoice;
     APVTS::ParameterLayout layout;
+    layout.add(std::make_unique<ChoiceParam>(juce::ParameterID{"Type", 1}, "Type", juce::StringArray{"Datorro", "Lexicon"}, 0));
     layout.add(std::make_unique<FloatParam>(juce::ParameterID("PreDelay", 1), "Pre Delay", juce::NormalisableRange<float>(0.0f, 0.5f, 0.01f), 0.0f));
     layout.add(std::make_unique<FloatParam>(juce::ParameterID("EarlyReflections", 1), "Early Reflections", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
     layout.add(std::make_unique<FloatParam>(juce::ParameterID("Decay", 1), "Decay", juce::NormalisableRange<float>(0.01f, 0.9f, 0.01f), 0.5f));
@@ -230,6 +262,7 @@ APVTS::ParameterLayout PluginProcessor::createLayout() {
 }
 
 void PluginProcessor::bindListeners() {
+    m_tree.addParameterListener("Type", this);
     m_tree.addParameterListener("PreDelay", this);
     m_tree.addParameterListener("EarlyReflections", this);
     m_tree.addParameterListener("Decay", this);

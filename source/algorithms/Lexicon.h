@@ -3,18 +3,15 @@
 //
 #pragma once
 #include <algorithms/ReverbBase.h>
-#include <utils/DatorroInputStage.h>
-#include <utils/DatorroTank.h>
-#include <juce_dsp/juce_dsp.h>
 #include <SDSP/Macros.h>
-#include <SDSP/Filters/APF.h>
-#include <SDSP/Filters/UtilityFilters.h>
+#include <utils/LexiconInputStage.h>
+#include <utils/LexiconTank.h>
 namespace Toro {
-    class DatorroSimple : public ReverbBase {
-    public:
-        void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override ;
-        void getNextAudioBlock(juce::AudioBuffer<float>& buffer) override;
 
+    class Lexicon : public ReverbBase {
+    public:
+        void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
+        void getNextAudioBlock(juce::AudioBuffer<float>& buffer) override;
         SDSP_INLINE void setPreDelaySeconds(float newPreDelaySeconds) noexcept override {
             m_inputStage.setPreDelaySeconds(newPreDelaySeconds);
         }
@@ -25,10 +22,10 @@ namespace Toro {
             m_inputStage.setEarlyReflectionsLevel(newEarlyReflectionsLevel);
         }
         SDSP_INLINE void setInputDiffusion1(float newCoeff) noexcept override {
-            m_inputStage.setInputDiffusion1(newCoeff);
+            m_inputStage.setDiffusion1(newCoeff);
         }
         SDSP_INLINE void setInputDiffusion2(float newCoeff) noexcept override {
-            m_inputStage.setInputDiffusion2(newCoeff);
+            m_inputStage.setDiffusion2(newCoeff);
         }
         SDSP_INLINE void setDecay(float newDecay) noexcept override {
             m_tankStage.setDecay(newDecay);
@@ -49,10 +46,11 @@ namespace Toro {
             m_dryWet = newDryWet;
         }
     private:
-        DatorroInputStage m_inputStage;
-        DatorroTank m_tankStage;
+        LexiconInputStage m_inputStage;
+        LexiconTank m_tankStage;
         float m_dryWet{ 0.5f };
         juce::dsp::DryWetMixer<float> m_dryWetMixer;
     };
 
-}
+} // Toro
+
